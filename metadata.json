@@ -1,0 +1,5 @@
+{
+  "name": "United Rentals Europe Intent Explorer",
+  "description": "A dashboard to visualize search intent and fan-out queries for United Rentals across European markets using Gemini Search Grounding.",
+  "requestFramePermissions": []
+}
