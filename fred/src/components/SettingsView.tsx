@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { fromISO } from '../dates';
 import { demoState } from '../demo';
 import { emptyState, isState } from '../store';
@@ -9,6 +9,7 @@ export function SettingsView({ store, today, notify }: ViewProps) {
   const { state, updateSettings, replaceAll } = store;
   const { partners, tone, anniversary } = state.settings;
   const file = useRef<HTMLInputElement>(null);
+  const [pending, setPending] = useState<'demo' | 'wipe' | null>(null);
 
   const setPartner = (i: 0 | 1, patch: Partial<Partner>) => {
     const next = [...partners] as [Partner, Partner];
@@ -88,10 +89,26 @@ export function SettingsView({ store, today, notify }: ViewProps) {
 
       <div className="card">
         <h3>Opnieuw beginnen</h3>
-        <div className="row wrap">
-          <button className="btn" onClick={() => confirm('Voorbeeldgezin laden? Je huidige gegevens worden vervangen.') && replaceAll(demoState(fromISO(today)))}>Voorbeeldgezin laden</button>
-          <button className="btn ghost danger" onClick={() => confirm('Alles wissen?') && replaceAll(emptyState())}>Alles wissen</button>
-        </div>
+        {pending ? (
+          <div className="row wrap">
+            <span className="grow small">{pending === 'demo' ? 'Je huidige gegevens worden vervangen door het voorbeeldgezin.' : 'Alle taken, afspraken en instellingen worden gewist.'}</span>
+            <button className="btn ghost" onClick={() => setPending(null)}>Annuleren</button>
+            <button
+              className={`btn ${pending === 'wipe' ? 'danger' : 'primary'}`}
+              onClick={() => {
+                replaceAll(pending === 'demo' ? demoState(fromISO(today)) : emptyState());
+                setPending(null);
+              }}
+            >
+              {pending === 'demo' ? 'Ja, laden' : 'Ja, alles wissen'}
+            </button>
+          </div>
+        ) : (
+          <div className="row wrap">
+            <button className="btn" onClick={() => setPending('demo')}>Voorbeeldgezin laden</button>
+            <button className="btn ghost danger" onClick={() => setPending('wipe')}>Alles wissen</button>
+          </div>
+        )}
       </div>
     </section>
   );

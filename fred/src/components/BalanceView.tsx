@@ -21,13 +21,18 @@ export function BalanceView({ store, today, notify }: ViewProps) {
 
   const share = async (text: string) => {
     try {
-      if (navigator.share) await navigator.share({ text });
-      else {
-        await navigator.clipboard.writeText(text);
-        notify('Gekopieerd. Plak het in de groepsapp!');
+      if (navigator.share) {
+        await navigator.share({ text });
+        return;
       }
+    } catch (e) {
+      if ((e as Error).name === 'AbortError') return; // gebruiker annuleerde
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      notify('Gekopieerd. Plak het in de groepsapp!');
     } catch {
-      /* gebruiker annuleerde */
+      notify(text);
     }
   };
 
